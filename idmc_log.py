@@ -98,50 +98,38 @@ def login_to_idmc():
     print("✅ Login successful!")
  
 # --- Add First Level Nodes ---
+
 def click_add_first_level_nodes():
     try:
-        # 1. Locate and Click the 'Add First Level Nodes' button
+        # 1. Click 'Add First Level Nodes' button
         add_node_button = wait.until(EC.element_to_be_clickable(
             (By.CSS_SELECTOR, "button[data-testid='add-root-record-button']")
         ))
         driver.execute_script("arguments[0].scrollIntoView(true);", add_node_button)
         time.sleep(1)
-        # Use JavaScript to click the button for robustness
         driver.execute_script("arguments[0].click();", add_node_button)
         print("✅ Clicked 'Add First Level Nodes' button using JS.")
-        
-        # Give some time for the search modal/widget to appear
-        time.sleep(3) 
+        time.sleep(3)
 
-        # --- Search Functionality ---
-        mstr_prty_id_to_search = "24128677"  # <<< IMPORTANT: MANUALLY ENTER YOUR ID HERE
-
-        # 2. Locate the Search Input field
-        # Using presence_of_element_located as we will use JavaScript to interact with it.
-        search_input_field = wait.until(EC.presence_of_element_located(
-            (By.CSS_SELECTOR, "input[data-testid='mdm-bui-search-input']")
+        # 2. Wait for modal to appear
+        modal_container = wait.until(EC.presence_of_element_located(
+            (By.CSS_SELECTOR, "div[data-testid='mdm-bui-search-modal']")
         ))
-        print("✅ Search input field is present.")
-        
-        # --- FIX 1: Use JavaScript Executor to set the value ---
-        # This is a robust way to bypass 'element not interactable' errors.
-        driver.execute_script("arguments[0].value = arguments[1];", search_input_field, mstr_prty_id_to_search)
-        print(f"✅ Entered ID: {mstr_prty_id_to_search} into search bar via JS.")
 
-        # 3. Locate and Click the Magnifier (Search) button
-        search_icon_button = wait.until(EC.element_to_be_clickable(
-            (By.CSS_SELECTOR, "button[data-testid='mdm-bui-search-icon']")
-        ))
-        # Use JavaScript to click the search button as well for consistency
+        # 3. Locate the search input field inside the modal
+        search_input_field = modal_container.find_element(By.CSS_SELECTOR, "input[data-testid='mdm-bui-search-input']")
+        driver.execute_script("arguments[0].value = arguments[1];", search_input_field, "24128677")
+        print("✅ Entered ID into search bar inside modal via JS.")
+
+        # 4. Click the search icon inside the modal
+        search_icon_button = modal_container.find_element(By.CSS_SELECTOR, "button[data-testid='mdm-bui-search-icon']")
         driver.execute_script("arguments[0].click();", search_icon_button)
-        print("✅ Clicked search icon to initiate search via JS.")
-        
+        print("✅ Clicked search icon inside modal via JS.")
+
     except Exception as e:
         print(f"❌ Error during search and 'Add First Level Nodes' process: {e}")
         driver.save_screenshot("search_add_error.png")
 
- 
-# --- Click 'Customer 360', Hierarchies Tab, Add Entity, Create, Fill Form, Submit ---
 def click_customer_360_and_hierarchies():
     try:
         wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.app-switcher-container")))
